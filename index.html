@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livix | Professional Digital ID</title>
+    <style>
+        :root {
+            --primary: #111827;
+            --accent: #059669;
+            --accent-light: #34d399;
+            --bg-body: #f3f4f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* --- Perlindungan Global --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Mencegah seleksi teks */
+            -webkit-user-drag: none; /* Mencegah drag gambar */
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Anti-Screenshot & Blur saat kehilangan fokus */
+        #secure-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        /* Latar Belakang Watermark */
+        .watermark-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.03;
+            display: flex;
+            flex-wrap: wrap;
+            overflow: hidden;
+        }
+        .wm-item {
+            padding: 50px;
+            font-size: 14px;
+            transform: rotate(-25deg);
+            white-space: nowrap;
+        }
+
+        /* --- Tata Letak --- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--accent); }
+
+        /* --- Bagian-bagian --- */
+        section { padding: 5rem 0; }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            min-height: 60vh;
+        }
+
+        .hero-content { flex: 1; }
+        .hero-image {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            border-radius: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--accent);
+            font-size: 6rem;
+            font-weight: 800;
+            box-shadow: 20px 20px 0 var(--accent);
+        }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        /* Pengalaman / Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            padding: 20px 40px;
+            position: relative;
+            background: var(--white);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+
+        .timeline-item:hover { transform: translateX(10px); }
+
+        .date {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        /* Grid Layanan */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+        /* Kotak Data Terlindungi */
+        .secure-data-box {
+            background: #111827;
+            color: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .redacted {
+            background: #374151;
+            color: #374151;
+            cursor: pointer;
+            padding: 0 8px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .redacted:active { color: #fff; background: var(--accent); }
+
+        /* Tombol */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+
+        /* Kaki Halaman */
+        footer {
+            background: var(--white);
+            padding: 4rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; gap: 2rem; }
+            .hero-image { width: 200px; height: 200px; font-size: 4rem; }
+            .hero h1 { font-size: 2.8rem; }
+            .nav-links { display: none; }
+        }
+
+        @media print { body { display: none !important; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="secure-overlay">
+        <div style="background: #ef4444; color: white; padding: 20px 40px; border-radius: 12px; font-weight: bold;">
+            SISTEM KEAMANAN AKTIF: PENGAMBILAN GAMBAR DILARANG
+        </div>
+        <p style="margin-top: 20px;">Silakan kembali ke jendela browser untuk melanjutkan.</p>
+    </div>
+
+    <div class="watermark-container" id="wm-bg"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">Null</a>
+                <ul class="nav-links">
+                    <li><a href="#about">Tentang</a></li>
+                    <li><a href="#experience">Pengalaman</a></li>
+                    <li><a href="#services">Layanan</a></li>
+                    <li><a href="#contact">Kontak</a></li>
+                </ul>
+                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">NC</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero" id="about">
+            <div class="hero-content">
+                <h1>LIVIX</h1>
+                <p>Data Integrity Consultant and Information Security Architect focusing on basic digital level privacy and personal information asset protection.</p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="#contact" class="btn btn-primary btn-scroll">Contact Me</a>
+                    <a href="#experience" class="btn btn-scroll" style="border: 1px solid var(--border);">see resume</a>
+                </div>
+            </div>
+            <div class="hero-image">LIVIX</div>
+        </section>
+
+        <!-- Bagian Pengalaman -->
+        <section id="experience">
+            <h2 style="font-size: 2rem; margin-bottom: 3rem; text-align: center;">Program History</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="date">2025-11</span>
+                    <h3>Senior Code Generate</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">beginner coder using AI</p>
+                </div>
+                <div class="timeline-item">
+                    <span class="date">2025-12</span>
+                    <h3>Without Explanation</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Without Explanation</p>
+                </div>
+                <div class="timeline-item">
+                    <span class="date">2026-1</span>
+                    <h3>without explanation</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Without Explanation</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bagian Layanan -->
+        <section id="services">
+            <h2 style="font-size: 2rem; margin-bottom: 3rem; text-align: center;">Expertise Services</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent);">01. Electrical Service</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Can Repair Basic Electronics Without The System</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent);">02. 3D Design</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">3D Graphic Designer That's Not Too Difficult</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent);">03. Sound System Operator</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Can Adjust Each Sound Starting From Frequency, Limit, Effect, and More</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bagian Kontak Aman -->
+        <section id="contact">
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; text-align: center;">Secure Communication Channel</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">Identity verified. The data below is cryptographically protected.</p>
+            
+            <div class="secure-data-box">
+                <div class="data-row">
+                    <span>Official Identity:</span>
+                    <span class="redacted" title="Tahan untuk melihat">Azril Al Hafizh</span>
+                </div>
+                <div class="data-row">
+                    <span>Encrypted Email:</span>
+                    <span class="redacted" title="Tahan untuk melihat">Livix.ofc@gmail.com
+                        <span>kilytyz@gmail.com</span>                    </span>
+                </div>
+                <div class="data-row">
+                    <span>Programming Location</span>
+                    <span class="redacted" title="Tahan untuk melihat">Trisnomulyo Batangharinuban Lampung Timur</span>
+                </div>
+                <div class="data-row">
+                    <span>Public PGP Key:</span>
+                    <span style="font-family: monospace; font-size: 0.7rem; color: var(--accent-light);">000 000 000</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <h3 style="margin-bottom: 1rem;">LIVIX</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 500px; margin: 0 auto 2rem;">
+                Building a safer, more peaceful, and more sovereign digital future.
+            </p>
+            <div style="font-size: 0.75rem; color: #9ca3af;">
+                &copy; 2011 Identity Protocol.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* --- Smooth Scroll Logic --- */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerOffset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        /* --- Generator Watermark --- */
+        const wmContainer = document.getElementById('wm-bg');
+        const wmText = "SUSILA_ANDANIA_NAMBA_SECURE_IDENT";
+        for (let i = 0; i < 80; i++) {
+            const div = document.createElement('div');
+            div.className = 'wm-item';
+            div.innerText = wmText;
+            wmContainer.appendChild(div);
+        }
+
+        /* --- Logika Anti-Screenshot / Blur --- */
+        const overlay = document.getElementById('secure-overlay');
+        
+        window.addEventListener('blur', () => {
+            overlay.style.display = 'flex';
+        });
+        
+        window.addEventListener('focus', () => {
+            overlay.style.display = 'none';
+        });
+
+        /* --- Mencegah Pintasan Keyboard --- */
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === "F12" || 
+                (e.ctrlKey && (e.key === "u" || e.key === "p" || e.key === "s")) ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        /* --- Bersihkan Clipboard saat PrintScreen --- */
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'PrintScreen') {
+                navigator.clipboard.writeText('Akses Dibatasi');
+            }
+        });
+    </script>
+</body>
+</html>
