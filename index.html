@@ -3,441 +3,571 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livix | Professional Digital ID</title>
-    <style>
-        :root {
-            --primary: #111827;
-            --accent: #059669;
-            --accent-light: #34d399;
-            --bg-body: #f3f4f6;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --white: #ffffff;
-            --border: #e5e7eb;
-            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
-        /* --- Perlindungan Global --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none; /* Mencegah seleksi teks */
-            -webkit-user-drag: none; /* Mencegah drag gambar */
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
-
-        /* Anti-Screenshot & Blur saat kehilangan fokus */
-        #secure-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(40px);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: var(--primary);
-        }
-
-        /* Latar Belakang Watermark */
-        .watermark-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 999;
-            opacity: 0.03;
-            display: flex;
-            flex-wrap: wrap;
-            overflow: hidden;
-        }
-        .wm-item {
-            padding: 50px;
-            font-size: 14px;
-            transform: rotate(-25deg);
-            white-space: nowrap;
-        }
-
-        /* --- Tata Letak --- */
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 1.25rem;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover { color: var(--accent); }
-
-        /* --- Bagian-bagian --- */
-        section { padding: 5rem 0; }
-
-        /* Hero Section */
-        .hero {
-            display: flex;
-            align-items: center;
-            gap: 4rem;
-            min-height: 60vh;
-        }
-
-        .hero-content { flex: 1; }
-        .hero-image {
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            border-radius: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--accent);
-            font-size: 6rem;
-            font-weight: 800;
-            box-shadow: 20px 20px 0 var(--accent);
-        }
-
-        .hero h1 {
-            font-size: 3.8rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-            letter-spacing: -2px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            max-width: 600px;
-        }
-
-        /* Pengalaman / Timeline */
-        .timeline {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .timeline-item {
-            padding: 20px 40px;
-            position: relative;
-            background: var(--white);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            transition: transform 0.3s;
-        }
-
-        .timeline-item:hover { transform: translateX(10px); }
-
-        .date {
-            font-weight: 700;
-            color: var(--accent);
-            font-size: 0.85rem;
-        }
-
-        /* Grid Layanan */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background: var(--white);
-            padding: 2.5rem;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .card:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-
-        /* Kotak Data Terlindungi */
-        .secure-data-box {
-            background: #111827;
-            color: #fff;
-            padding: 2rem;
-            border-radius: 20px;
-            margin-top: 2rem;
-        }
-
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #1f2937;
-        }
-
-        .redacted {
-            background: #374151;
-            color: #374151;
-            cursor: pointer;
-            padding: 0 8px;
-            border-radius: 4px;
-            transition: 0.3s;
-        }
-
-        .redacted:active { color: #fff; background: var(--accent); }
-
-        /* Tombol */
-        .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-
-        /* Kaki Halaman */
-        footer {
-            background: var(--white);
-            padding: 4rem 0;
-            text-align: center;
-            border-top: 1px solid var(--border);
-        }
-
-        @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; gap: 2rem; }
-            .hero-image { width: 200px; height: 200px; font-size: 4rem; }
-            .hero h1 { font-size: 2.8rem; }
-            .nav-links { display: none; }
-        }
-
-        @media print { body { display: none !important; } }
-    </style>
+    <title>Portfolio - Teknologi & Kreativitas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body oncontextmenu="return false;">
-
-    <div id="secure-overlay">
-        <div style="background: #ef4444; color: white; padding: 20px 40px; border-radius: 12px; font-weight: bold;">
-            SISTEM KEAMANAN AKTIF: PENGAMBILAN GAMBAR DILARANG
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">PORTFOLIO</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Beranda</a></li>
+                <li><a href="#about" class="nav-link">Tentang</a></li>
+                <li><a href="#skills" class="nav-link">Keahlian</a></li>
+                <li><a href="#projects" class="nav-link">Proyek</a></li>
+                <li><a href="#gallery" class="nav-link">Galeri</a></li>
+                <li><a href="#contact" class="nav-link">Kontak</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
         </div>
-        <p style="margin-top: 20px;">Silakan kembali ke jendela browser untuk melanjutkan.</p>
-    </div>
+    </nav>
 
-    <div class="watermark-container" id="wm-bg"></div>
-
-    <header>
-        <div class="container">
-            <nav>
-                <a href="#" class="logo">Null</a>
-                <ul class="nav-links">
-                    <li><a href="#about">Tentang</a></li>
-                    <li><a href="#experience">Pengalaman</a></li>
-                    <li><a href="#services">Layanan</a></li>
-                    <li><a href="#contact">Kontak</a></li>
-                </ul>
-                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">NC</button>
-            </nav>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="grid-overlay"></div>
+            <div class="particles" id="particles"></div>
         </div>
-    </header>
-
-    <div class="container">
-        <!-- Hero Section -->
-        <section class="hero" id="about">
-            <div class="hero-content">
-                <h1>LIVIX</h1>
-                <p>Data Integrity Consultant and Information Security Architect focusing on basic digital level privacy and personal information asset protection.</p>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="#contact" class="btn btn-primary btn-scroll">Contact Me</a>
-                    <a href="#experience" class="btn btn-scroll" style="border: 1px solid var(--border);">see resume</a>
-                </div>
+        <div class="hero-content">
+            <div class="hero-badge reveal-text">
+                <i class="fas fa-code"></i>
+                <span>Self-Taught Technologist</span>
             </div>
-            <div class="hero-image">LIVIX</div>
-        </section>
-
-        <!-- Bagian Pengalaman -->
-        <section id="experience">
-            <h2 style="font-size: 2rem; margin-bottom: 3rem; text-align: center;">Program History</h2>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <span class="date">2025-11</span>
-                    <h3>Senior Code Generate</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">beginner coder using AI</p>
-                </div>
-                <div class="timeline-item">
-                    <span class="date">2025-12</span>
-                    <h3>Without Explanation</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Without Explanation</p>
-                </div>
-                <div class="timeline-item">
-                    <span class="date">2026-1</span>
-                    <h3>without explanation</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Without Explanation</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bagian Layanan -->
-        <section id="services">
-            <h2 style="font-size: 2rem; margin-bottom: 3rem; text-align: center;">Expertise Services</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3 style="margin-bottom: 1rem; color: var(--accent);">01. Electrical Service</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted);">Can Repair Basic Electronics Without The System</p>
-                </div>
-                <div class="card">
-                    <h3 style="margin-bottom: 1rem; color: var(--accent);">02. 3D Design</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted);">3D Graphic Designer That's Not Too Difficult</p>
-                </div>
-                <div class="card">
-                    <h3 style="margin-bottom: 1rem; color: var(--accent);">03. Sound System Operator</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted);">Can Adjust Each Sound Starting From Frequency, Limit, Effect, and More</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bagian Kontak Aman -->
-        <section id="contact">
-            <h2 style="font-size: 2rem; margin-bottom: 1rem; text-align: center;">Secure Communication Channel</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">Identity verified. The data below is cryptographically protected.</p>
-            
-            <div class="secure-data-box">
-                <div class="data-row">
-                    <span>Official Identity:</span>
-                    <span class="redacted" title="Tahan untuk melihat">Azril Al Hafizh</span>
-                </div>
-                <div class="data-row">
-                    <span>Encrypted Email:</span>
-                    <span class="redacted" title="Tahan untuk melihat">Livix.ofc@gmail.com
-                        <span>kilytyz@gmail.com</span>                    </span>
-                </div>
-                <div class="data-row">
-                    <span>Programming Location</span>
-                    <span class="redacted" title="Tahan untuk melihat">Trisnomulyo Batangharinuban Lampung Timur</span>
-                </div>
-                <div class="data-row">
-                    <span>Public PGP Key:</span>
-                    <span style="font-family: monospace; font-size: 0.7rem; color: var(--accent-light);">000 000 000</span>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <footer>
-        <div class="container">
-            <h3 style="margin-bottom: 1rem;">LIVIX</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 500px; margin: 0 auto 2rem;">
-                Building a safer, more peaceful, and more sovereign digital future.
+            <h1 class="hero-title reveal-text">
+                Eksplorasi <span class="highlight">Teknologi</span><br>
+                & <span class="highlight">Kreativitas</span>
+            </h1>
+            <p class="hero-subtitle reveal-text">
+                Seorang individu yang berdedikasi dalam mempelajari berbagai disiplin ilmu 
+                teknis dan kreatif melalui pembelajaran mandiri, eksperimen, dan eksplorasi berkelanjutan.
             </p>
-            <div style="font-size: 0.75rem; color: #9ca3af;">
-                &copy; 2011 Identity Protocol.
+            <div class="hero-cta reveal-text">
+                <a href="#projects" class="btn btn-primary">
+                    <span>Lihat Proyek</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#contact" class="btn btn-secondary">Hubungi Saya</a>
+            </div>
+            <div class="hero-stats reveal-text">
+                <div class="stat-item">
+                    <span class="stat-number">8+</span>
+                    <span class="stat-label">Bidang Keahlian</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Self</span>
+                    <span class="stat-label">Taught</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Eksplorasi</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Gulir ke bawah</span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Tentang Saya</span>
+                <h2 class="section-title">Profesional dengan<br><span class="highlight">Visi Multidisiplin</span></h2>
+            </div>
+            <div class="about-content">
+                <div class="about-image reveal-left">
+                    <div class="image-wrapper">
+                        <div class="image-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="image-decoration"></div>
+                    </div>
+                </div>
+                <div class="about-text reveal-right">
+                    <h3 class="about-heading">Komitmen terhadap Pembelajaran dan Inovasi</h3>
+                    <p class="about-description">
+                        Saya adalah seorang individu yang memiliki ketertarikan mendalam terhadap berbagai bidang 
+                        teknologi dan teknik. Dengan pendekatan pembelajaran mandiri (self-taught), saya telah 
+                        mengembangkan keahlian dalam berbagai disiplin ilmu mulai dari pengembangan web, teknik 
+                        listrik, sistem audio, hingga fotografi dan desain 3D.
+                    </p>
+                    <p class="about-description">
+                        Filosofi kerja saya didasarkan pada eksplorasi berkelanjutan, eksperimen praktis, dan 
+                        penerapan pengetahuan teoretis ke dalam proyek nyata. Saya percaya bahwa kombinasi antara 
+                        pemahaman teknis yang kuat dan kreativitas yang tinggi menghasilkan solusi inovatif yang 
+                        berdampak positif.
+                    </p>
+                    <div class="about-features">
+                        <div class="feature-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Pemikir Kreatif</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tools"></i>
+                            <span>Problem Solver</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-rocket"></i>
+                            <span>Inovator</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Keahlian</span>
+                <h2 class="section-title">Kompetensi <span class="highlight">Teknis & Kreatif</span></h2>
+            </div>
+            
+            <div class="skills-grid">
+                <!-- Technical Skills -->
+                <div class="skill-category reveal-up">
+                    <div class="skill-header">
+                        <i class="fas fa-microchip"></i>
+                        <h3>Technical Skills</h3>
+                    </div>
+                    <div class="skill-list">
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Pengembangan Web</span>
+                                <span class="skill-percent">85%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="85"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Teknik Listrik</span>
+                                <span class="skill-percent">80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="80"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Sound System</span>
+                                <span class="skill-percent">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="90"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Creative Skills -->
+                <div class="skill-category reveal-up">
+                    <div class="skill-header">
+                        <i class="fas fa-palette"></i>
+                        <h3>Creative Skills</h3>
+                    </div>
+                    <div class="skill-list">
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Fotografi</span>
+                                <span class="skill-percent">75%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="75"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Desain 3D</span>
+                                <span class="skill-percent">70%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="70"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Visual Design</span>
+                                <span class="skill-percent">65%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="65"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Interests -->
+                <div class="skill-category reveal-up">
+                    <div class="skill-header">
+                        <i class="fas fa-star"></i>
+                        <h3>Additional Interests</h3>
+                    </div>
+                    <div class="interest-tags">
+                        <span class="interest-tag"><i class="fas fa-car"></i> Otomotif</span>
+                        <span class="interest-tag"><i class="fas fa-helicopter"></i> FPV Drone</span>
+                        <span class="interest-tag"><i class="fas fa-motorcycle"></i> Kendaraan Bermotor</span>
+                        <span class="interest-tag"><i class="fas fa-cogs"></i> Mekanik</span>
+                        <span class="interest-tag"><i class="fas fa-broadcast-tower"></i> Audio Engineering</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Proyek & Pengalaman</span>
+                <h2 class="section-title">Hasil <span class="highlight">Eksplorasi</span></h2>
+            </div>
+            
+            <div class="projects-grid">
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">Audio Engineering</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Sistem Audio Professional</h3>
+                        <p>Perakitan dan konfigurasi sistem sound system untuk berbagai keperluan event dan studio recording.</p>
+                        <div class="project-tech">
+                            <span>Audio Mixing</span>
+                            <span>Speaker Config</span>
+                            <span>Acoustics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">Otomotif</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Modifikasi Kendaraan</h3>
+                        <p>Proyek modifikasi ringan dan perawatan kendaraan dengan fokus pada performa dan estetika.</p>
+                        <div class="project-tech">
+                            <span>Engine Tuning</span>
+                            <span>Maintenance</span>
+                            <span>Customization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">Web Development</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Pengembangan Website</h3>
+                        <p>Pembuatan website responsif dan interaktif menggunakan teknologi web modern.</p>
+                        <div class="project-tech">
+                            <span>HTML/CSS</span>
+                            <span>JavaScript</span>
+                            <span>Responsive</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">Electrical</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Eksperimen Kelistrikan</h3>
+                        <p>Proyek eksperimental dalam sistem kelistrikan, pengkabelan, dan sistem arus.</p>
+                        <div class="project-tech">
+                            <span>Circuit Design</span>
+                            <span>Wiring</span>
+                            <span>Power Systems</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">Photography</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Dokumentasi Visual</h3>
+                        <p>Proyek fotografi dengan fokus pada komposisi, pencahayaan, dan dokumentasi teknis.</p>
+                        <div class="project-tech">
+                            <span>Composition</span>
+                            <span>Lighting</span>
+                            <span>Post-Processing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="project-image">
+                        <div class="project-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="project-overlay">
+                            <span class="project-category">3D Design</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3>Desain Objek 3D</h3>
+                        <p>Pembuatan model 3D untuk berbagai keperluan prototyping dan visualisasi.</p>
+                        <div class="project-tech">
+                            <span>3D Modeling</span>
+                            <span>Rendering</span>
+                            <span>Prototyping</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Galeri</span>
+                <h2 class="section-title">Portofolio <span class="highlight">Visual</span></h2>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Proyek Audio Setup</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Modifikasi Kendaraan</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Website Project</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Eksperimen Listrik</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Fotografi</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+                <div class="gallery-item reveal-up" onclick="openModal(this)">
+                    <div class="gallery-image">
+                        <div class="gallery-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Desain 3D</span>
+                        </div>
+                    </div>
+                    <div class="gallery-overlay">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Gallery -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <div class="modal-placeholder">
+                <i class="fas fa-image"></i>
+                <p>Gambar akan ditampilkan di sini</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section-padding">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Kontak</span>
+                <h2 class="section-title">Mari <span class="highlight">Berkolaborasi</span></h2>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info reveal-left">
+                    <h3>Informasi Kontak</h3>
+                    <p>Terbuka untuk kolaborasi, proyek, dan diskusi mengenai teknologi serta kreativitas.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-text">
+                                <span class="label">Email</span>
+                                <span class="value">contact@portfolio.com</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-text">
+                                <span class="label">Telepon</span>
+                                <span class="value">+62 xxx xxxx xxxx</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-text">
+                                <span class="label">Lokasi</span>
+                                <span class="value">Indonesia</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-form-wrapper reveal-right">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" required>
+                            <label for="name">Nama Lengkap</label>
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" required>
+                            <label for="email">Alamat Email</label>
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" required>
+                            <label for="subject">Subjek</label>
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" rows="5" required></textarea>
+                            <label for="message">Pesan</label>
+                            <i class="fas fa-comment"></i>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span>Kirim Pesan</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span>PORTFOLIO</span>
+                </div>
+                <p class="footer-text">
+                    Dibuat dengan dedikasi untuk eksplorasi teknologi dan kreativitas.
+                </p>
+                <div class="footer-links">
+                    <a href="#home">Beranda</a>
+                    <a href="#about">Tentang</a>
+                    <a href="#skills">Keahlian</a>
+                    <a href="#projects">Proyek</a>
+                    <a href="#contact">Kontak</a>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Portfolio. All rights reserved.</p>
+                </div>
             </div>
         </div>
     </footer>
 
-    <script>
-        /* --- Smooth Scroll Logic --- */
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    const headerOffset = 80;
-                    const elementPosition = targetElement.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        /* --- Generator Watermark --- */
-        const wmContainer = document.getElementById('wm-bg');
-        const wmText = "LIVIX_SECURE_IDENT";
-        for (let i = 0; i < 80; i++) {
-            const div = document.createElement('div');
-            div.className = 'wm-item';
-            div.innerText = wmText;
-            wmContainer.appendChild(div);
-        }
-
-        /* --- Logika Anti-Screenshot / Blur --- */
-        const overlay = document.getElementById('secure-overlay');
-        
-        window.addEventListener('blur', () => {
-            overlay.style.display = 'flex';
-        });
-        
-        window.addEventListener('focus', () => {
-            overlay.style.display = 'none';
-        });
-
-        /* --- Mencegah Pintasan Keyboard --- */
-        document.addEventListener('keydown', (e) => {
-            if (
-                e.key === "F12" || 
-                (e.ctrlKey && (e.key === "u" || e.key === "p" || e.key === "s")) ||
-                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))
-            ) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        /* --- Bersihkan Clipboard saat PrintScreen --- */
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'PrintScreen') {
-                navigator.clipboard.writeText('Akses Dibatasi');
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
-</html>
+    </html>
+                      
