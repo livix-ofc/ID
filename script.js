@@ -1,3 +1,6 @@
+// ==========================================
+// MOBILE NAVIGATION
+// ==========================================
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
@@ -13,6 +16,9 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
+// ==========================================
+// NAVBAR BACKGROUND ON SCROLL
+// ==========================================
 const navbar = document.querySelector('.navbar');
 window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
@@ -24,6 +30,9 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// ==========================================
+// SKILL BAR ANIMATION
+// ==========================================
 function animateSkillBars() {
     const skillBars = document.querySelectorAll('.skill-progress');
     
@@ -38,31 +47,9 @@ function animateSkillBars() {
     });
 }
 
-function openModal(element) {
-    const modal = document.getElementById('imageModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-    const modal = document.getElementById('imageModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('imageModal');
-    if (event.target === modal) {
-        closeModal();
-    }
-}
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
-
+// ==========================================
+// SMOOTH SCROLL
+// ==========================================
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -77,6 +64,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// ==========================================
+// SCROLL REVEAL
+// ==========================================
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -86,7 +76,7 @@ const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('active');
-          
+            
             if (entry.target.closest('.skills')) {
                 animateSkillBars();
             }
@@ -101,9 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 });
+
 window.addEventListener('scroll', () => {
     animateSkillBars();
 });
+
+// ==========================================
+// ACTIVE NAVIGATION HIGHLIGHTING
+// ==========================================
 const sections = document.querySelectorAll('section');
 const navLinks = document.querySelectorAll('.nav-link');
 
@@ -125,3 +120,4 @@ window.addEventListener('scroll', () => {
         }
     });
 });
+                
